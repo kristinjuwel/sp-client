@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conditionals Simulation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffffff;
+            color: #4a0c0c;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            gap: 20px;
+        }
+
+        .card {
+            flex: 1;
+            padding: 20px;
+            border: 1px solid #4a0c0c;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background-color: #ffffff;
+        }
+
+        h1 {
+            text-align: center;
+            color: #4a0c0c;
+        }
+
+        .card h2 {
+            color: #4a0c0c;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input[type="file"],
+        select,
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #4a0c0c;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #4a0c0c;
+            color: #ffffff;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #6e1a1a;
+        }
+
+        #loadingIndicator,
+        #successMessage,
+        #errorMessage {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        #loadingIndicator {
+            color: #4a0c0c;
+        }
+
+        #successMessage {
+            color: #0c4a0c;
+        }
+
+        #errorMessage {
+            color: #4a0c0c;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="card">
+            <h2>File Upload</h2>
+            <form id="uploadForm" enctype="multipart/form-data" action="/upload/">
+                <label for="caseFileInput">Upload Case File:</label>
+                <input type="file" name="caseFile" id="caseFileInput" required>
+
+                <label for="controlsFileInput">Upload Controls File:</label>
+                <input type="file" name="controlsFile" id="controlsFileInput" required>
+
+                <label for="algorithmSelect">Select Algorithm:</label>
+                <select id="algorithmSelect" name="algorithm" required>
+                    <option value="algorithm1">Algorithm 1 - Polynomial Approximation</option>
+                    <option value="algorithm2">Algorithm 2 - Multiplexer</option>
+                    <option value="algorithm3">Algorithm 3 - Blind Evaluation</option>
+                    <option value="algorithm4">Algorithm 4 - Conditional Branching</option>
+                    <option value="algorithm5">Algorithm 5 - Minimax Approximation</option>
+                </select>
+
+                <label for="algorithmDescription">Algorithm Description:</label>
+                <p id="algorithmDescription" style="font-style: italic; color: #4a0c0c;">Select an algorithm to see its
+                    description.</p>
+
+                <button type="submit">Upload</button>
+            </form>
+            <div id="loadingIndicator" style="display: none;">Uploading...</div>
+            <div id="successMessage" style="display: none;">Files uploaded successfully!</div>
+            <div id="errorMessage" style="display: none;">An error occurred during upload.</div>
+        </div>
+    </div>
+
+    <script>
+        const uploadForm = document.getElementById('uploadForm');
+        const caseFileInput = document.getElementById('caseFileInput');
+        const controlsFileInput = document.getElementById('controlsFileInput');
+        const algorithmSelect = document.getElementById('algorithmSelect');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const successMessage = document.getElementById('successMessage');
+        const errorMessage = document.getElementById('errorMessage');
+
+        const algorithmDescriptions = {
+            algorithm1: "Polynomial Approximation: Uses polynomial functions to approximate data.",
+            algorithm2: "Multiplexer: Combines multiple inputs into a single output.",
+            algorithm3: "Blind Evaluation: Processes data without prior knowledge of its structure.",
+            algorithm4: "Conditional Branching: Executes different paths based on conditions.",
+            algorithm5: "Minimax Approximation: Minimizes the maximum possible error in approximation."
+        };
+
+        algorithmSelect.addEventListener('change', () => {
+            const selectedAlgorithm = algorithmSelect.value;
+            const description = algorithmDescriptions[selectedAlgorithm] || "Select an algorithm to see its description.";
+            document.getElementById('algorithmDescription').textContent = description;
+        });
+
+        uploadForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            if (!caseFileInput.files.length || !controlsFileInput.files.length) {
+                alert('Both files are required. Please upload the case file and the controls file.');
+                return;
+            }
+
+            loadingIndicator.style.display = 'block';
+            successMessage.style.display = 'none';
+            errorMessage.style.display = 'none';
+
+            const formData = new FormData();
+            formData.append('case_file', caseFileInput.files[0]);
+            formData.append('controls_file', controlsFileInput.files[0]);
+            formData.append('algorithm', algorithmSelect.value);
+
+            try {
+                const response = await fetch('/upload_and_encrypt/', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    successMessage.style.display = 'block';
+                    console.log('Files uploaded and encrypted:', result);
+                } else {
+                    errorMessage.style.display = 'block';
+                    console.error('Error response:', await response.text());
+                }
+            } catch (error) {
+                errorMessage.style.display = 'block';
+                console.error('Upload error:', error);
+            } finally {
+                loadingIndicator.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,112 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Conditionals Simulation</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Fredoka', sans-serif;
+    }
+
+    .hero-section {
+      height: 60vh;
+    }
+  </style>
+</head>
+
+<body class="bg-pink-50 text-gray-800">
+
+  <!-- Navigation -->
+  <header class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+      <div class="flex items-center gap-2 text-xl font-bold text-pink-600">
+        🧬 <span>CondSim</span>
+      </div>
+      <nav class="flex items-center gap-6 text-sm">
+        <a href="#about" class="text-gray-600 hover:text-pink-600">About</a>
+        <a href="/file-upload"
+          class="bg-pink-500 text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-pink-600">
+          Try Now
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="relative py-24 px-4 bg-pink-100 overflow-hidden hero-section">
+    <!-- Background Image -->
+    <div class="absolute inset-0 z-0">
+      <img src="{% static 'images/dna-hor.png' %}" alt="DNA Background"
+        class="absolute inset-0 w-[200%] h-[200%] object-cover opacity-40 blur-sm" />
+    </div>
+
+    <!-- Foreground Content -->
+    <div class="relative z-10 max-w-7xl mx-auto text-left">
+      <div class="max-w-2xl">
+        <h1 class="text-4xl md:text-6xl font-bold text-pink-700 mb-6">
+          Conditionals Simulation for FHE in GWAS
+        </h1>
+        <p class="text-lg text-gray-700 mb-8">
+          Securely explore Fully Homomorphic Encryption (FHE) in Genome-Wide Association Studies with a touch of
+          cuteness.
+        </p>
+        <div class="flex gap-4 flex-col sm:flex-row">
+          <a href="/file-upload" class="bg-pink-500 text-white px-6 py-3 rounded-full font-semibold hover:bg-pink-600">
+            Get Started
+          </a>
+          <a href="#about"
+            class="border border-pink-500 text-pink-600 px-6 py-3 rounded-full font-semibold hover:bg-pink-50">
+            Learn More
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section id="about" class="py-16 px-4 bg-white text-center">
+    <div class="max-w-3xl mx-auto">
+      <h2 class="text-3xl font-bold text-pink-700 mb-4">About the Project</h2>
+      <p class="text-gray-700 text-lg">
+        This project demonstrates how Fully Homomorphic Encryption (FHE) can be used to analyze sensitive genomic data
+        without ever decrypting it. Ideal for researchers, educators, and anyone interested in secure biomedical
+        computation.
+      </p>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="py-16 px-4 bg-pink-50">
+    <div class="max-w-5xl mx-auto text-center">
+      <h2 class="text-3xl font-bold text-pink-700 mb-10">Why You'll Love It</h2>
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="bg-white p-6 rounded-lg shadow-md">
+          <h3 class="text-xl font-semibold text-pink-600 mb-2">🔐 Privacy First</h3>
+          <p class="text-gray-600">Use encrypted datasets with no risk of leakage — the data never gets decrypted!</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-md">
+          <h3 class="text-xl font-semibold text-pink-600 mb-2">⚙️ Algorithm Playground</h3>
+          <p class="text-gray-600">Choose from 5 simulation algorithms designed to illustrate FHE's power in GWAS.</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-md">
+          <h3 class="text-xl font-semibold text-pink-600 mb-2">😻 Cute & Educational</h3>
+          <p class="text-gray-600">A light-hearted interface designed to make complex concepts more approachable.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="text-center py-8 text-sm text-gray-500">
+    © 2025 Conditionals Simulation. Made with 🧬 and 💖.
+  </footer>
+
+</body>
+
+</html>
