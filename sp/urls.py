@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.shortcuts import render
-from conditionals.views import upload_file, upload_and_encrypt
+from conditionals.views import upload_file, upload_and_encrypt, results_view
 
 # Views
 def upload_view(request):
@@ -36,4 +36,5 @@ urlpatterns = [
     path('start/', start_view, name='start'),
     path('upload/', upload_file, name='upload_file'),
     path('upload_and_encrypt/', upload_and_encrypt, name='upload_and_encrypt'),
+    path('results/', results_view, name='results'),
 ]

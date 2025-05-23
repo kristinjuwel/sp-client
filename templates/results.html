@@ -1,0 +1,173 @@
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Analysis Results</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        @keyframes fade-in {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fade-in 0.25s ease-out;
+        }
+    </style>
+</head>
+
+<body class="bg-pink-50 text-gray-800 flex flex-col min-h-screen">
+
+    <!-- Navbar -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-2 text-xl font-bold text-pink-600">
+                🧬 <span>CondSim</span>
+            </div>
+            <nav class="flex items-center gap-6 text-sm">
+                <a href="/" class="text-gray-600 hover:text-pink-600 flex gap-2 items-center">
+                    <i class="fa-solid fa-house"></i>
+                    Home
+                </a>
+                <a href="/file-upload/" class="text-gray-600 hover:text-pink-600 flex gap-2 items-center">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    Upload
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow px-4 py-10">
+        <div class="max-w-5xl mx-auto bg-white p-8 rounded-3xl shadow-xl">
+            <h1 class="text-4xl font-bold text-center text-pink-700 mb-10">Analysis Results</h1>
+
+            {% if error %}
+            <div class="bg-red-100 text-red-700 border border-red-300 p-4 rounded-lg mb-6">
+                {{ error }}
+            </div>
+            {% else %}
+
+            <!-- Section Component -->
+            <div class="space-y-8">
+
+                <!-- Genotype Counts -->
+                <section class="bg-pink-50 border border-pink-200 rounded-xl p-6">
+                    <h2 class="text-2xl font-semibold text-pink-700 mb-4">
+                        <i class="fa-solid fa-dna mr-2 text-pink-700"></i>Genotype Counts
+                    </h2>
+
+                    <table class="w-full table-auto border-collapse text-sm">
+                        <thead class="bg-pink-100 text-pink-800">
+                            <tr>
+                                <th class="p-2 text-left border-b">Genotype</th>
+                                <th class="p-2 text-left border-b">Cases</th>
+                                <th class="p-2 text-left border-b">Controls</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="p-2 border-b">AA</td>
+                                <td class="p-2 border-b">{{ genotype_counts.case.AA|default:"N/A" }}</td>
+                                <td class="p-2 border-b">{{ genotype_counts.control.AA|default:"N/A" }}</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 border-b">AG</td>
+                                <td class="p-2 border-b">{{ genotype_counts.case.AG|default:"N/A" }}</td>
+                                <td class="p-2 border-b">{{ genotype_counts.control.AG|default:"N/A" }}</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 border-b">GG</td>
+                                <td class="p-2 border-b">{{ genotype_counts.case.GG|default:"N/A" }}</td>
+                                <td class="p-2 border-b">{{ genotype_counts.control.GG|default:"N/A" }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Allele Counts -->
+                <section class="bg-pink-50 border border-pink-200 rounded-xl p-6">
+                    <h2 class="text-2xl font-semibold text-pink-700 mb-4">
+                        <i class="fa-solid fa-table mr-2 text-pink-700"></i>Allele Contingency Table
+                    </h2>
+                    <table class="w-full table-auto border-collapse text-sm">
+                        <thead class="bg-pink-100 text-pink-800">
+                            <tr>
+                                <th class="p-2 text-left border-b">Allele</th>
+                                <th class="p-2 text-left border-b">Cases</th>
+                                <th class="p-2 text-left border-b">Controls</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="p-2 border-b">A</td>
+                                <td class="p-2 border-b">{{ allele_counts.case.A|default:"N/A" }}</td>
+                                <td class="p-2 border-b">{{ allele_counts.control.A|default:"N/A" }}</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 border-b">G</td>
+                                <td class="p-2 border-b">{{ allele_counts.case.G|default:"N/A" }}</td>
+                                <td class="p-2 border-b">{{ allele_counts.control.G|default:"N/A" }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Stats -->
+                <!-- Stats -->
+                <section class="bg-pink-50 border border-pink-200 rounded-xl p-6">
+                    <h2 class="text-2xl font-semibold text-pink-700 mb-4">
+                        <i class="fa-solid fa-chart-simple mr-2 text-pink-700"></i>Statistical Results
+                    </h2>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        {% for label, value in statistics.items %}
+                        <div
+                            class="relative group bg-white border border-pink-100 rounded-xl p-4 shadow-sm hover:shadow-md transition cursor-help">
+                            <div class="text-sm font-medium text-pink-600">
+                                {{ label|replace:"_" }}
+                            </div>
+                            <div class="text-lg font-bold text-gray-700 mt-1">
+                                {{ value|floatformat:4|default:"N/A" }}
+                            </div>
+
+                            <!-- Cute Hover Card -->
+                            <div
+                                class="absolute top-full left-1/2 transform -translate-x-1/2 mt-3 hidden group-hover:block z-20">
+                                <div
+                                    class="bg-pink-100 text-pink-800 text-sm p-4 rounded-xl shadow-xl border border-pink-200 w-64 animate-fade-in transition-all duration-200 ring-1 ring-white ring-opacity-40">
+                                    <i class="fa-solid fa-info-circle mr-2 text-pink-500"></i>
+                                    {{ stat_descriptions|get:label|lower|default:"No description available." }}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </section>
+            </div>
+            {% endif %}
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t text-center text-sm text-gray-500 py-6">
+        © 2025 Conditionals Simulation. Made with 🧬 and 💖.
+    </footer>
+</body>
+
+</html>

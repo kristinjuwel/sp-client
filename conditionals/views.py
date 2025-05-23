@@ -1,8 +1,8 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-import os
 from django.conf import settings
+import os
 import base64
 import pandas as pd
 import numpy as np
@@ -115,9 +115,13 @@ def upload_and_encrypt(request):
             context = ts.context(
                 scheme=ts.SCHEME_TYPE.CKKS,
                 poly_modulus_degree=32768,
-                coeff_mod_bit_sizes=[60, 40, 40, 40, 40, 60]
+                coeff_mod_bit_sizes=[60, 40, 40, 40, 40, 60] if algorithm != 'algorithm5' else
+                                    [60] + [40] * 16 + [60]
             )
-            context.global_scale = 2**40
+            if algorithm == 'algorithm1':
+                context.global_scale = 2**30
+            else:
+                context.global_scale = 2**40
             context.generate_galois_keys()
 
             # Store contexts
@@ -187,6 +191,7 @@ def upload_and_encrypt(request):
                     flask_result = {'error': str(e)}
             
 
+            print("Computation time from server:", flask_result.get("computation_time"))
             # Debugging: Log data sent to the server
             print("Data sent to Flask server:")
             print("Case file path:", enc_case_path)
@@ -316,26 +321,45 @@ def upload_and_encrypt(request):
             print(f"HWE Chi-square Case: {hwe_case:.4f}")
             print(f"HWE Chi-square Control: {hwe_control:.4f}")
 
-            # Prepare the final results
-            final_results = {
-                'status': 'success',
-                'genotype_counts': decrypted_counts,
-                'allele_counts': {
-                    'case': case_alleles,
-                    'control': control_alleles
-                },
-                'contingency_table': contingency_table.to_dict(),
-                'statistics': {
-                    'allelic_odds_ratio': float(aor),
-                    'chi_square': float(chi2),
-                    'maf_case': float(maf_case),
-                    'maf_control': float(maf_control),
-                    'hwe_chi2_case': float(hwe_case),
-                    'hwe_chi2_control': float(hwe_control)
+            # Prepare the results data
+            try:
+                # Convert contingency table to a simpler format
+                contingency_data = {
+                    'alleles': ['A', 'G'],
+                    'cases': contingency_table['Cases'].tolist(),
+                    'controls': contingency_table['Controls'].tolist()
                 }
-            }
+                
+                results_data = {
+                    'genotype_counts': decrypted_counts,
+                    'allele_counts': {
+                        'case': case_alleles,
+                        'control': control_alleles
+                    },
+                    'contingency_table': contingency_data,
+                    'statistics': {
+                        'allelic_odds_ratio': float(aor),
+                        'chi_square_statistic': float(chi2),
+                        'minor_allele_frequency_case': float(maf_case),
+                        'minor_allele_frequency_control': float(maf_control),
+                        'hardy-Weinberg_equilibrium_case': float(hwe_case),
+                        'hardy-Weinberg_equilibrium_control': float(hwe_control)
+                    }
+                }
+                print("Debug - Results data:", results_data)  # Debug print
+                
+                # Store results in session
+                request.session['results_data'] = results_data
+                return JsonResponse({
+                    'success': True,
+                    'redirect_url': '/results/'
+                })
 
-            return JsonResponse(final_results)
+            except Exception as render_error:
+                print(f"Error preparing template data: {str(render_error)}")
+                return JsonResponse({
+                    'error': f'Failed to render template: {str(render_error)}'
+                }, status=500)
 
         except Exception as e:
             return JsonResponse({
@@ -344,3 +368,27 @@ def upload_and_encrypt(request):
             }, status=500)
 
     return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+
+def results_view(request):
+    results_data = request.session.get('results_data')
+    
+    # Add statistics descriptions
+    stat_descriptions = {
+        'allelic_odds_ratio': 'Odds of an allele appearing in cases versus controls.',
+        'chi_square_statistic': 'Chi-square test result measuring association strength.',
+        'minor_allele_frequency_case': 'Minor Allele Frequency among cases.',
+        'minor_allele_frequency_control': 'Minor Allele Frequency among controls.',
+        'hardy-Weinberg_equilibrium_case': 'Hardy-Weinberg Equilibrium chi-square in cases.',
+        'hardy-Weinberg_equilibrium_control': 'Hardy-Weinberg Equilibrium chi-square in controls.'
+    }
+
+    context = {
+        'error': None if results_data else 'No results data available',
+        'stat_descriptions': stat_descriptions
+    }
+
+    if results_data:
+        context.update(results_data)
+
+    return render(request, 'results.html', context)
